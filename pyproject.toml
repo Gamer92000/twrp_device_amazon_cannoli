@@ -1,0 +1,13 @@
+[project]
+name = "twrp-device-amazon-cannoli"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Offline Cannoli NS6575/8349 TWRP builder"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = ["work", "out"]

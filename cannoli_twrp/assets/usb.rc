@@ -1,0 +1,30 @@
+on init
+    mkdir /config 0755 root root
+    mount configfs none /config
+    mkdir /config/usb_gadget/g1 0770 root shell
+    write /config/usb_gadget/g1/idVendor 0x18d1
+    write /config/usb_gadget/g1/idProduct 0xd001
+    mkdir /config/usb_gadget/g1/strings/0x409 0770 root shell
+    write /config/usb_gadget/g1/strings/0x409/serialnumber @SERIAL@
+    write /config/usb_gadget/g1/strings/0x409/manufacturer Amazon
+    write /config/usb_gadget/g1/strings/0x409/product Cannoli-TWRP
+    mkdir /config/usb_gadget/g1/functions/ffs.adb 0770 root shell
+    mkdir /config/usb_gadget/g1/configs/b.1 0770 root shell
+    mkdir /config/usb_gadget/g1/configs/b.1/strings/0x409 0770 root shell
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration adb
+    write /config/usb_gadget/g1/configs/b.1/MaxPower 500
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f1
+    setprop sys.usb.configfs 1
+    setprop sys.usb.ffs.aio_compat 1
+
+on boot
+    setprop sys.usb.config adb
+    start adbd
+
+on property:sys.usb.ffs.ready=1
+    start cannoli-usb-bind
+
+service cannoli-usb-bind /sbin/sh /sbin/cannoli-usb-bind.sh
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0

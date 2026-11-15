@@ -1,0 +1,4 @@
+# Cannoli NAND/UBI diagnostic mounts. No raw flash targets until runtime mapping is verified.
+/data    ubifs /dev/storage/by-name/userdata flags=display="Data";backup=1
+/cache   ubifs /dev/storage/by-name/cache    flags=display="Cache";backup=1
+/persist ubifs /dev/storage/by-name/persist  flags=display="Persist";backup=1

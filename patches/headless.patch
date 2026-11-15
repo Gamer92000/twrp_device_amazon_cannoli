@@ -1,0 +1,43 @@
+diff --git a/minuitwrp/graphics.cpp b/minuitwrp/graphics.cpp
+index b387b70..1e116de 100644
+--- a/minuitwrp/graphics.cpp
++++ b/minuitwrp/graphics.cpp
+@@ -357,10 +357,38 @@ static void get_memory_surface(GGLSurface* ms) {
+     ms->format = gr_draw->format;
+ }
+
++// Screenless recovery devices can still run the TWRP command service and
++// render screenshots into memory. Enable explicitly in the device ramdisk.
++static GRSurface headless_surface = {480, 800, 480 * 2, 2, NULL,
++                                     GGL_PIXEL_FORMAT_RGB_565};
++static GRSurface* headless_init(minui_backend*) {
++    headless_surface.data = static_cast<unsigned char*>(
++        calloc(headless_surface.height, headless_surface.row_bytes));
++    return headless_surface.data ? &headless_surface : NULL;
++}
++static GRSurface* headless_flip(minui_backend*) { return &headless_surface; }
++static void headless_blank(minui_backend*, bool) {}
++static void headless_exit(minui_backend*) {
++    free(headless_surface.data);
++    headless_surface.data = NULL;
++}
++static minui_backend headless_backend = {
++    headless_init, headless_flip, headless_blank, headless_exit
++};
++
+ int gr_init(void)
+ {
+     gr_draw = NULL;
+
++    char headless[PROPERTY_VALUE_MAX];
++    property_get("ro.twrp.headless", headless, "0");
++    if (!strcmp(headless, "1")) {
++        gr_backend = &headless_backend;
++        gr_draw = gr_backend->init(gr_backend);
++        if (!gr_draw) return -1;
++        printf("Using headless memory graphics (480x800).\n");
++    }
++
+     char gr_rotation_string[PROPERTY_VALUE_MAX];
+     char default_rotation[4];
+     snprintf(default_rotation, 4, "%d", TW_ROTATION);
