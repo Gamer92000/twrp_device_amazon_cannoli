@@ -19,7 +19,7 @@ Our pinned manifest and packaging helpers live alongside that tree.
 
 ## Build on x86-64 Linux
 
-Use Python 3.10 or later and a dedicated TWRP tree. Allow tens of gigabytes.
+Use Python 3.10 or later and a dedicated TWRP tree. Allow about 26 GB.
 Run these commands from this repository root:
 
 ```sh
@@ -43,6 +43,13 @@ extracts the stock kernel, and applies the headless graphics and host build
 patches. A hash-pinned Python 2.7.18 is built locally for legacy Android build
 tools; the Python modules in this repository use Python 3. `JOBS` defaults
 to 4. Android's `OUT_DIR` can select a fresh output directory.
+
+On WSL, keep `TWRP_TREE` on the Linux ext4 filesystem (`~/twrp-cannoli`),
+not on the Windows drive: the 9p bridge onto a case-insensitive NTFS target
+hangs the source sync around the 20 GB mark. One Ubuntu 22.04 reporter also
+needed the `en_US.UTF-8` locale generated first
+(`sudo locale-gen en_US.UTF-8`); if a clean build fails on a locale error,
+this is the cause.
 
 Package the build for the target USB serial:
 
